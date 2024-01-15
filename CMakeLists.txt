@@ -5,9 +5,9 @@ set(CMAKE_CXX_STANDARD 20)
 
 add_compile_options(-Wno-write-strings)
 
-file(GLOB_RECURSE SOURCES "extern_var/src/*.*" "camera/src/*.*" "net/src/*.*" "process/src/*.*")
+file(GLOB_RECURSE SOURCES "extern_var/src/*.*" "camera/src/*.*" "net/src/*.*" "process/src/*.*" "network/src/*.*")
 
-include_directories(extern_var/inc camera/inc net/inc process/inc)
+include_directories(extern_var/inc camera/inc net/inc process/inc network/inc)
 
 add_executable(
         rasberry_client
@@ -16,8 +16,14 @@ add_executable(
 )
 
 add_executable(
-        test
-        test/src/test.cpp
+        test_camera
+        test/src/test_camera.cpp
+        ${SOURCES}
+)
+
+add_executable(
+        test_net
+        test/src/test_net.cpp
         ${SOURCES}
 )
 

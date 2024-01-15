@@ -1,4 +1,4 @@
-#include "../inc/test.h"
+#include "../inc/test_camera.h"
 
 
 int main(int argc, char **argv)
