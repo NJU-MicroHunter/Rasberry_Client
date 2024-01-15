@@ -1,0 +1,10 @@
+cmake-build-debug/
+.idea/
+*.RGB
+.sync.ffs_db
+build/
+*.o
+*.d
+*.lst
+*.a
+.vscode/
