@@ -3,6 +3,8 @@ project(rasberry_client)
 
 set(CMAKE_CXX_STANDARD 20)
 
+add_compile_options(-Wno-write-strings)
+
 file(GLOB_RECURSE SOURCES "extern_var/src/*.*" "camera/src/*.*" "net/src/*.*" "process/src/*.*")
 
 include_directories(extern_var/inc camera/inc net/inc process/inc)
@@ -10,6 +12,12 @@ include_directories(extern_var/inc camera/inc net/inc process/inc)
 add_executable(
         rasberry_client
         main.cpp
+        ${SOURCES}
+)
+
+add_executable(
+        test
+        test/src/test.cpp
         ${SOURCES}
 )
 
