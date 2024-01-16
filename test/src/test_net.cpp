@@ -16,6 +16,12 @@ struct sockaddr_in address;
 std::atomic_bool connected{false};
 std::atomic_bool reconnect_timer_started{false};
 
+int main()
+{
+    test_network();
+    test_network();
+}
+
 void start_reconnect_timer() {
     // 示例代码，并没有真正启动一个计时器
     // 你可以在这里实现你的计时器逻辑
@@ -30,7 +36,6 @@ void stop_reconnect_timer() {
 }
 
 bool connect_to_server(const char* server_ip, int server_port) {
-    int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0) {
         std::cerr << "Error opening socket." << std::endl;
         return false;
@@ -42,8 +47,11 @@ bool connect_to_server(const char* server_ip, int server_port) {
     server_addr.sin_addr.s_addr = inet_addr(server_ip);
     server_addr.sin_port = htons(server_port);
 
+    static int failed_times;
+
     if (connect(sockfd, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
-        std::cerr << "Connection failed." << std::endl;
+        failed_times++;
+        std::cerr << "Connection failed " << failed_times << std::endl;
         close(sockfd);
         return false;
     }
@@ -56,9 +64,9 @@ bool connect_to_server(const char* server_ip, int server_port) {
     return true;
 }
 
-void communicate_with_server(int sockfd) {
-    const char* msg = "hello server";
-    char buffer[256] = {0};
+void communicate_with_server() {
+    static const char* msg = "hello server";
+    static char buffer[256] = {0};
 
     while (connected) {
         if (send(sockfd, msg, strlen(msg), 0) < 0) {
@@ -86,7 +94,16 @@ void communicate_with_server(int sockfd) {
 
 int test_network() {
     const char* server_ip = "127.0.0.1";
-    int server_port = 12345;
+    int server_port = 8080;
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    struct timeval timeout;
+    // 设置发送超时时间
+    timeout.tv_sec = 5;     // 5秒
+    timeout.tv_usec = 0;    // 0微秒
+    if (setsockopt(sockfd, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(timeout)) < 0) {
+        perror("Error setting send timeout");
+        exit(EXIT_FAILURE);
+    }
 
     while (true) {
         if (!connected && !reconnect_timer_started) {
@@ -94,12 +111,15 @@ int test_network() {
                 stop_reconnect_timer();
                 // 假设sockfd是全局变量，并且已经在connect_to_server中正确设置
                 // int sockfd; // 这个应该是全局的
-                 communicate_with_server(sockfd);
+                communicate_with_server();
 
                 // 由于我们没有将sockfd设置为全局变量，这里我们简单地启动一个新线程
 //                std::thread(communicate_with_server, sockfd).detach();
                 // 注意：上面的代码片段有问题，因为sockfd在connect_to_server函数作用域内就被销毁了。
                 // 实际上，你需要将sockfd保存为全局变量或通过其他方式传递给它。
+            }
+            else{
+                std::this_thread::sleep_for(std::chrono::seconds(1));
             }
         } else {
             // 如果正在尝试重新连接，则等待一段时间再次检查
