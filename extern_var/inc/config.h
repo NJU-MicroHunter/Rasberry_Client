@@ -6,9 +6,11 @@
 #include <unistd.h>
 #include <string.h>
 #include <time.h>
+#include <malloc.h>
 
 #include "camera.h"
 #include "net_module.h"
+#include "log_module.h"
 
 
 typedef struct System_Status_Table{
@@ -16,7 +18,7 @@ typedef struct System_Status_Table{
 
     // Camera Status
     struct {
-        int8_t Activate_Flag : 1;
+        atomic_bool Activate_Flag;
     }Camera;
 
     // Network Status

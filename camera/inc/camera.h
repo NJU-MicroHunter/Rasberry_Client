@@ -36,6 +36,8 @@ extern Camera_Data_Table Camera_Data;
 void Camera_Init();
 void Camera_Re_Init();
 Frame_Data_Table Camera_Get_Frame();
+void Update_Frame_Timer();
+void Wait_Frame_Timer();
 
 
 #endif //RASBERRY_CLIENT_CAMERA_H

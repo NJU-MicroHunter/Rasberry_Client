@@ -134,12 +134,6 @@ Frame_Data_Table Camera_Get_Frame()
     fd_set fds;
     int r;
 
-    // 在这里处理视频帧数据，例如保存为文件或进行图像处理
-    while (clock_gettime(CLOCK_REALTIME, &Camera_Data.ts_now) == 0 && Camera_Data.ts_now.tv_sec < Camera_Data.ts_next.tv_sec ||
-           (Camera_Data.ts_now.tv_sec == Camera_Data.ts_next.tv_sec && Camera_Data.ts_now.tv_nsec < Camera_Data.ts_next.tv_nsec)) {
-        // 等待直到下一帧应该被捕获的时间点
-    }
-
     // 在实际代码中，这里应该是一个循环，等待帧的可用信号（例如使用select()或poll()）
     // 然后使用mmap来获取帧数据
     FD_ZERO(&fds);
@@ -173,7 +167,11 @@ Frame_Data_Table Camera_Get_Frame()
     }
 
     return frame;
+}
 
+
+void Update_Frame_Timer()
+{
     // 更新下一帧的时间点
     Camera_Data.ts_next.tv_nsec += FRAME_INTERVAL_NS;
     if (Camera_Data.ts_next.tv_nsec >= NANOSEC_PER_SEC) {
@@ -191,5 +189,15 @@ Frame_Data_Table Camera_Get_Frame()
     }
     if (ts_diff.tv_sec > 0 || ts_diff.tv_nsec > 0) {
         nanosleep(&ts_diff, NULL); // 等待直到下一帧的预设时间点
+    }
+}
+
+
+void Wait_Frame_Timer()
+{
+    // 在这里处理视频帧数据，例如保存为文件或进行图像处理
+    while (clock_gettime(CLOCK_REALTIME, &Camera_Data.ts_now) == 0 && Camera_Data.ts_now.tv_sec < Camera_Data.ts_next.tv_sec ||
+           (Camera_Data.ts_now.tv_sec == Camera_Data.ts_next.tv_sec && Camera_Data.ts_now.tv_nsec < Camera_Data.ts_next.tv_nsec)) {
+        // 等待直到下一帧应该被捕获的时间点
     }
 }
